@@ -89,120 +89,125 @@ load_10rpsX2min <- bind_rows(normal_10rpsX2min, cache_10rpsX2min)
 
 # Viewing data
 
+Define a common bar plot.
 ```{r}
-ggplot(load_5rpsX2min) + 
-  geom_bar(aes(x = responseCode), fill = c("dodgerblue")) + 
-  facet_grid(.~mode) +
-  labs(
-    title = "Códigos de respuesta para 5rps/2min", 
-    x = "Número de respuesta", 
-    y = "Frecuencia absoluta"
-  )
+bar_plotter <- function(test_data, rps) {
+  ggplot(test_data) + 
+    geom_bar(aes(x = responseCode), fill = c("dodgerblue")) + 
+    facet_grid(.~mode) +
+    labs(
+      title = paste0("Códigos de respuesta para ", rps, "rps/2min"), 
+      x = "Número de respuesta", 
+      y = "Frecuencia absoluta"
+    )
+}
 ```
 
+Use in datasets.
 ```{r}
-ggplot(load_10rpsX2min) + 
-  geom_bar(aes(x = responseCode), fill = c("dodgerblue")) + 
-  facet_grid(.~mode) + 
-  labs(
-    title = "Códigos de respuesta para 10rps/2min", 
-    x = "Número de respuesta", 
-    y = "Frecuencia absoluta"
-  )
+bar_plotter(load_1rpsX2min, 1)
+bar_plotter(load_3rpsX2min, 3)
+bar_plotter(load_5rpsX2min, 5)
+bar_plotter(load_7rpsX2min, 7)
+bar_plotter(load_10rpsX2min, 10)
 ```
 
 Filter the data for only use response codes 200.
 ```{r}
-load_5rpsX2min <- subset(load_5rpsX2min, responseCode == "200")
 load_10rpsX2min <- subset(load_10rpsX2min, responseCode == "200")
 ```
 
-
+Define a common box plot.
 ```{r}
-ggplot(load_5rpsX2min) +
-  geom_boxplot(aes(x = mode, y = Latency)) +
-  labs(
-    title = "Representación de caja por cada fuente [5rps/2min]", 
-    x = "Fuente", 
-    y = "Latencia [ms]"
-  )
-
-ggplot(load_10rpsX2min) +
-  geom_boxplot(aes(x = mode, y = Latency)) +
-  labs(
-    title = "Representación de caja por cada fuente [10rps/2min]", 
-    x = "Fuente", 
-    y = "Latencia [ms]"
-  )
+box_plotter <- function(test_data, rps) {
+  ggplot(test_data) +
+    geom_boxplot(aes(x = mode, y = Latency)) +
+    labs(
+      title = paste0("Representación de caja por cada fuente [", rps, "rps/2min]"), 
+      x = "Fuente", 
+      y = "Latencia [ms]"
+    )
+}
 ```
 
-
+Use in datasets.
 ```{r}
-ggplot(load_5rpsX2min) + 
-  geom_point(aes(x = Latency, y = elapsed, color = mode)) + 
-  facet_wrap(~mode) + 
-  labs(
-    title = "Diagrama de puntos de latencia contra tiempo total [5rps/2min]", 
-    x = "Latencia [ms]", 
-    y = "Tiempo total [ms]"
-  ) + 
-  scale_color_manual(values = c("indianred1", "lightskyblue"))
-
-ggplot(load_10rpsX2min) + 
-  geom_point(aes(x = Latency, y = elapsed, color = mode)) + 
-  facet_wrap(~mode) + 
-  labs(
-    title = "Diagrama de puntos de latencia contra tiempo total [10rps/2min]", 
-    x = "Latencia [ms]", 
-    y = "Tiempo total [ms]"
-  ) + 
-  scale_color_manual(values = c("indianred1", "lightskyblue"))
+box_plotter(load_1rpsX2min, 1)
+box_plotter(load_3rpsX2min, 3)
+box_plotter(load_5rpsX2min, 5)
+box_plotter(load_7rpsX2min, 7)
+box_plotter(load_10rpsX2min, 10)
 ```
 
+Define a common scatter plot.
 ```{r}
-ggplot(load_5rpsX2min) + 
-  geom_density(aes(x = Latency, color = mode, fill = mode), alpha = 0.9) + 
-  labs(
-    title = "Curvas de densidad por cada fuente [5rps/2min]", 
-    x = "Latencia [ms]", 
-    y = "Densidad"
-  ) + 
-  scale_color_manual(values = c("indianred1", "lightskyblue")) + 
-  scale_fill_manual(values = c("indianred1", "lightskyblue"))
-
-ggplot(load_10rpsX2min) + 
-  geom_density(aes(x = Latency, color = mode, fill = mode), alpha = 0.9) + 
-  labs(
-    title = "Curvas de densidad por cada fuente [10rps/2min]", 
-    x = "Latencia [ms]", 
-    y = "Densidad"
-  ) + 
-  scale_color_manual(values = c("indianred1", "lightskyblue")) + 
-  scale_fill_manual(values = c("indianred1", "lightskyblue"))
+scatter_plotter <- function(test_data, rps) {
+  ggplot(test_data) + 
+    geom_point(aes(x = Latency, y = elapsed, color = mode)) + 
+    facet_wrap(~mode) + 
+    labs(
+      title = paste0("Dispersión de latencia contra tiempo total [", rps, "rps/2min]"), 
+      x = "Latencia [ms]", 
+      y = "Tiempo total [ms]"
+    ) + 
+    scale_color_manual(values = c("indianred1", "lightskyblue"))
+}
 ```
 
-Time series using Epoch:
+Use in datasets.
 ```{r}
-ggplot(load_5rpsX2min) + 
-  geom_line(aes(x = timeStamp, y = Latency, color = mode)) + 
-  facet_wrap(~mode, nrow = 2, ncol = 1, scales = "free") + 
-  labs(
-    title = "Serie de tiempo para la latencia [5rps/2min]", 
-    x = "Linea de tiempo normalizada", 
-    y = "Latencia [ms]"
-  ) + 
-  scale_color_manual(values = c("indianred1", "lightskyblue"))
-
-ggplot(load_10rpsX2min) + 
-  geom_line(aes(x = timeStamp, y = Latency, color = mode)) + 
-  facet_wrap(~mode, nrow = 2, ncol = 1, scales = "free") + 
-  labs(
-    title = "Serie de tiempo para la latencia [10rps/2min]", 
-    x = "Linea de tiempo normalizada", 
-    y = "Latencia [ms]"
-  ) + 
-  scale_color_manual(values = c("indianred1", "lightskyblue"))
+scatter_plotter(load_1rpsX2min, 1)
+scatter_plotter(load_3rpsX2min, 3)
+scatter_plotter(load_5rpsX2min, 5)
+scatter_plotter(load_7rpsX2min, 7)
+scatter_plotter(load_10rpsX2min, 10)
 ```
 
+Define a common density plot.
+```{r}
+density_plotter <- function(test_data, rps) {
+  ggplot(test_data) + 
+    geom_density(aes(x = Latency, color = mode, fill = mode), alpha = 0.9) + 
+    labs(
+      title = paste0("Curvas de densidad por cada fuente [", rps, "rps/2min]"), 
+      x = "Latencia [ms]", 
+      y = "Densidad"
+    ) + 
+    scale_color_manual(values = c("indianred1", "lightskyblue")) + 
+    scale_fill_manual(values = c("indianred1", "lightskyblue"))
+}
+```
 
+Use in datasets.
+```{r}
+density_plotter(load_1rpsX2min, 1)
+density_plotter(load_3rpsX2min, 3)
+density_plotter(load_5rpsX2min, 5)
+density_plotter(load_7rpsX2min, 7)
+density_plotter(load_10rpsX2min, 10)
+```
+
+Define a common time series plot.
+```{r}
+time_plotter <- function(test_data, rps) {
+  ggplot(test_data) + 
+    geom_line(aes(x = timeStamp, y = Latency, color = mode)) + 
+    facet_wrap(~mode, nrow = 2, ncol = 1, scales = "free") + 
+    labs(
+      title = paste0("Serie de tiempo para la latencia [", rps, "rps/2min]"), 
+      x = "Linea de tiempo normalizada", 
+      y = "Latencia [ms]"
+    ) + 
+    scale_color_manual(values = c("indianred1", "lightskyblue"))
+}
+```
+
+Use in datasets.
+```{r}
+time_plotter(load_1rpsX2min, 1)
+time_plotter(load_3rpsX2min, 3)
+time_plotter(load_5rpsX2min, 5)
+time_plotter(load_7rpsX2min, 7)
+time_plotter(load_10rpsX2min, 10)
+```
 
