@@ -1,15 +1,9 @@
 library(tidyverse)
 library(ggthemes)
 
-name_convention <- c(
-  "5rps_2min-normal-load_test.jtl", 
-  "10rps_2min-normal-load_test.jtl", 
-  "5rps_2min-cache-load_test.jtl", 
-  "10rps_2min-cache-load_test.jtl", 
-  "1rps_24h-normal-endurance_test.jtl",
-  "1rps_24h-cache-endurance_test.jtl")
+raw_filenames <- list.files("../data/raw")
 
-for (filename in name_convention) {
+for (filename in raw_filenames) {
   path <- paste0("../data/raw/", filename)
   tryCatch({
     raw_data <- read_csv(path)

@@ -18,31 +18,72 @@ library(ggthemes)
 
 ```{r}
 base_path <- "../data/clean/"
-normal_5rpsX2min <- read_csv(paste0(base_path, "5rps_2min-normal-load_test.jtl"))
-normal_10rpsX2min <- read.csv(paste0(base_path, "10rps_2min-normal-load_test.jtl"))
-cache_5rpsX2min <- read_csv(paste0(base_path, "5rps_2min-cache-load_test.jtl"))
-cache_10rpsX2min <- read_csv(paste0(base_path, "10rps_2min-cache-load_test.jtl"))
+normal_1rpsX2min <- read_csv(paste0(base_path, "load-test_1rps-2min_normal.jtl"))
+normal_3rpsX2min <- read_csv(paste0(base_path, "load-test_3rps-2min_normal.jtl"))
+normal_5rpsX2min <- read_csv(paste0(base_path, "load-test_5rps-2min_normal.jtl"))
+normal_7rpsX2min <- read_csv(paste0(base_path, "load-test_7rps-2min_normal.jtl"))
+normal_10rpsX2min <- read.csv(paste0(base_path, "load-test_10rps-2min_normal.jtl"))
+cache_1rpsX2min <- read_csv(paste0(base_path, "load-test_1rps-2min_cache.jtl"))
+cache_3rpsX2min <- read_csv(paste0(base_path, "load-test_3rps-2min_cache.jtl"))
+cache_5rpsX2min <- read_csv(paste0(base_path, "load-test_5rps-2min_cache.jtl"))
+cache_7rpsX2min <- read_csv(paste0(base_path, "load-test_7rps-2min_cache.jtl"))
+cache_10rpsX2min <- read_csv(paste0(base_path, "load-test_10rps-2min_cache.jtl"))
 
+normal_1rpsX2min$responseCode <- as.character(normal_1rpsX2min$responseCode)
+normal_3rpsX2min$responseCode <- as.character(normal_3rpsX2min$responseCode)
 normal_5rpsX2min$responseCode <- as.character(normal_5rpsX2min$responseCode)
+normal_7rpsX2min$responseCode <- as.character(normal_7rpsX2min$responseCode)
 normal_10rpsX2min$responseCode <- as.character(normal_10rpsX2min$responseCode)
+cache_1rpsX2min$responseCode <- as.character(cache_1rpsX2min$responseCode)
+cache_3rpsX2min$responseCode <- as.character(cache_3rpsX2min$responseCode)
 cache_5rpsX2min$responseCode <- as.character(cache_5rpsX2min$responseCode)
+cache_7rpsX2min$responseCode <- as.character(cache_7rpsX2min$responseCode)
 cache_10rpsX2min$responseCode <- as.character(cache_10rpsX2min$responseCode)
-
-# Comment this after take real metrics.
-#cache_5rpsX2min$Latency <- cache_5rpsX2min$Latency - 100
-cache_10rpsX2min$Latency <- cache_10rpsX2min$Latency - 100
 ```
 
+# Normalize the timestamp
+
+```{r}
+normalize <- function(timestamp_col) {
+  minimum <- min(timestamp_col)
+  maximum <- max(timestamp_col)
+  timestamp_norm <- (timestamp_col - minimum) / (maximum - minimum)
+  return(timestamp_norm)
+}
+```
+
+Execute in each dataset.
+```{r}
+normal_1rpsX2min$timeStamp <- normalize(normal_1rpsX2min$timeStamp)
+normal_3rpsX2min$timeStamp <- normalize(normal_3rpsX2min$timeStamp)
+normal_5rpsX2min$timeStamp <- normalize(normal_5rpsX2min$timeStamp)
+normal_7rpsX2min$timeStamp <- normalize(normal_7rpsX2min$timeStamp)
+normal_10rpsX2min$timeStamp <- normalize(normal_10rpsX2min$timeStamp)
+cache_1rpsX2min$timeStamp <- normalize(cache_1rpsX2min$timeStamp)
+cache_3rpsX2min$timeStamp <- normalize(cache_3rpsX2min$timeStamp)
+cache_5rpsX2min$timeStamp <- normalize(cache_5rpsX2min$timeStamp)
+cache_7rpsX2min$timeStamp <- normalize(cache_7rpsX2min$timeStamp)
+cache_10rpsX2min$timeStamp <- normalize(cache_10rpsX2min$timeStamp)
+```
 
 # Joining data sources
 
 ```{r}
-normal_5rpsX2min$source <- "normal"
-normal_10rpsX2min$source <- "normal"
-cache_5rpsX2min$source <- "cache"
-cache_10rpsX2min$source <- "cache"
+normal_1rpsX2min$mode <- "normal"
+normal_3rpsX2min$mode <- "normal"
+normal_5rpsX2min$mode <- "normal"
+normal_7rpsX2min$mode <- "normal"
+normal_10rpsX2min$mode <- "normal"
+cache_1rpsX2min$mode <- "cache"
+cache_3rpsX2min$mode <- "cache"
+cache_5rpsX2min$mode <- "cache"
+cache_7rpsX2min$mode <- "cache"
+cache_10rpsX2min$mode <- "cache"
 
+load_1rpsX2min <- bind_rows(normal_1rpsX2min, cache_1rpsX2min)
+load_3rpsX2min <- bind_rows(normal_3rpsX2min, cache_3rpsX2min)
 load_5rpsX2min <- bind_rows(normal_5rpsX2min, cache_5rpsX2min)
+load_7rpsX2min <- bind_rows(normal_7rpsX2min, cache_7rpsX2min)
 load_10rpsX2min <- bind_rows(normal_10rpsX2min, cache_10rpsX2min)
 ```
 
@@ -51,7 +92,7 @@ load_10rpsX2min <- bind_rows(normal_10rpsX2min, cache_10rpsX2min)
 ```{r}
 ggplot(load_5rpsX2min) + 
   geom_bar(aes(x = responseCode), fill = c("dodgerblue")) + 
-  facet_grid(.~source) +
+  facet_grid(.~mode) +
   labs(
     title = "Códigos de respuesta para 5rps/2min", 
     x = "Número de respuesta", 
@@ -62,7 +103,7 @@ ggplot(load_5rpsX2min) +
 ```{r}
 ggplot(load_10rpsX2min) + 
   geom_bar(aes(x = responseCode), fill = c("dodgerblue")) + 
-  facet_grid(.~source) + 
+  facet_grid(.~mode) + 
   labs(
     title = "Códigos de respuesta para 10rps/2min", 
     x = "Número de respuesta", 
@@ -79,7 +120,7 @@ load_10rpsX2min <- subset(load_10rpsX2min, responseCode == "200")
 
 ```{r}
 ggplot(load_5rpsX2min) +
-  geom_boxplot(aes(x = source, y = Latency)) +
+  geom_boxplot(aes(x = mode, y = Latency)) +
   labs(
     title = "Representación de caja por cada fuente [5rps/2min]", 
     x = "Fuente", 
@@ -87,7 +128,7 @@ ggplot(load_5rpsX2min) +
   )
 
 ggplot(load_10rpsX2min) +
-  geom_boxplot(aes(x = source, y = Latency)) +
+  geom_boxplot(aes(x = mode, y = Latency)) +
   labs(
     title = "Representación de caja por cada fuente [10rps/2min]", 
     x = "Fuente", 
@@ -98,8 +139,8 @@ ggplot(load_10rpsX2min) +
 
 ```{r}
 ggplot(load_5rpsX2min) + 
-  geom_point(aes(x = Latency, y = elapsed, color = source)) + 
-  facet_wrap(~source) + 
+  geom_point(aes(x = Latency, y = elapsed, color = mode)) + 
+  facet_wrap(~mode) + 
   labs(
     title = "Diagrama de puntos de latencia contra tiempo total [5rps/2min]", 
     x = "Latencia [ms]", 
@@ -108,8 +149,8 @@ ggplot(load_5rpsX2min) +
   scale_color_manual(values = c("indianred1", "lightskyblue"))
 
 ggplot(load_10rpsX2min) + 
-  geom_point(aes(x = Latency, y = elapsed, color = source)) + 
-  facet_wrap(~source) + 
+  geom_point(aes(x = Latency, y = elapsed, color = mode)) + 
+  facet_wrap(~mode) + 
   labs(
     title = "Diagrama de puntos de latencia contra tiempo total [10rps/2min]", 
     x = "Latencia [ms]", 
@@ -120,7 +161,7 @@ ggplot(load_10rpsX2min) +
 
 ```{r}
 ggplot(load_5rpsX2min) + 
-  geom_density(aes(x = Latency, color = source, fill = source), alpha = 0.9) + 
+  geom_density(aes(x = Latency, color = mode, fill = mode), alpha = 0.9) + 
   labs(
     title = "Curvas de densidad por cada fuente [5rps/2min]", 
     x = "Latencia [ms]", 
@@ -130,7 +171,7 @@ ggplot(load_5rpsX2min) +
   scale_fill_manual(values = c("indianred1", "lightskyblue"))
 
 ggplot(load_10rpsX2min) + 
-  geom_density(aes(x = Latency, color = source, fill = source), alpha = 0.9) + 
+  geom_density(aes(x = Latency, color = mode, fill = mode), alpha = 0.9) + 
   labs(
     title = "Curvas de densidad por cada fuente [10rps/2min]", 
     x = "Latencia [ms]", 
@@ -143,21 +184,21 @@ ggplot(load_10rpsX2min) +
 Time series using Epoch:
 ```{r}
 ggplot(load_5rpsX2min) + 
-  geom_line(aes(x = timeStamp, y = Latency, color = source)) + 
-  facet_wrap(~source, nrow = 2, ncol = 1, scales = "free") + 
+  geom_line(aes(x = timeStamp, y = Latency, color = mode)) + 
+  facet_wrap(~mode, nrow = 2, ncol = 1, scales = "free") + 
   labs(
     title = "Serie de tiempo para la latencia [5rps/2min]", 
-    x = "Marca de tiempo [Unix timestamp]", 
+    x = "Linea de tiempo normalizada", 
     y = "Latencia [ms]"
   ) + 
   scale_color_manual(values = c("indianred1", "lightskyblue"))
 
 ggplot(load_10rpsX2min) + 
-  geom_line(aes(x = timeStamp, y = Latency, color = source)) + 
-  facet_wrap(~source, nrow = 2, ncol = 1, scales = "free") + 
+  geom_line(aes(x = timeStamp, y = Latency, color = mode)) + 
+  facet_wrap(~mode, nrow = 2, ncol = 1, scales = "free") + 
   labs(
     title = "Serie de tiempo para la latencia [10rps/2min]", 
-    x = "Marca de tiempo [Unix timestamp]", 
+    x = "Linea de tiempo normalizada", 
     y = "Latencia [ms]"
   ) + 
   scale_color_manual(values = c("indianred1", "lightskyblue"))
